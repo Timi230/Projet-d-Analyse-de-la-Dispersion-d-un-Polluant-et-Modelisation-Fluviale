@@ -92,13 +92,14 @@ def parti21():
     
 def parti22():
     mu = 1
-    T =10
+    T = 10
 
 
     def f(N):
         print(T)
         x     = np.linspace(0,a,N+1)
         n_max = int(T/tau)
+        print(n_max)
         t     = np.linspace(0,n_max*tau,n_max+1)
         U     = np.zeros((n_max+1,N+1))
         U[0,:] = 1/(sigma*np.sqrt(2*np.pi))*np.exp(-((x-a/2)**2)/(2*sigma**2))
@@ -217,8 +218,71 @@ def parti22():
         return x,t,U
     
 
-    xCN,tCN,uCN = SolutionCN_4(N)
-    print(uCN)
+    def SolutionCN_5(N):
+
+        def mat_M(N):
+            M = np.zeros((N,N))
+            M += np.diagflat(-1*np.ones((N-1,1)),-1) + np.diagflat(1*np.ones((N-1,1)),1)
+            M[:,-1] = M[:,-2]*h
+            M = M*(1/(2*h))
+            return M
+        
+        def mat_A(N):
+            A = -2 * np.eye(N)
+            A += np.diagflat(-1*np.ones((N-1,1)),-1)  + np.diagflat(1*np.ones((N-1,1)),1)
+            A[:,-1] = A[:,-2]*h
+            A = A * (1/h**2)
+            return A
+
+        def mat_F1(N):
+            F = np.zeros((n_max + 1, N))  # Initialisation de la matrice F
+            x = np.linspace(0, a, N + 1)  # Grille des positions
+            print(t)
+            # Remplissage des coefficients de la matrice F
+            for n in range(n_max):
+                print(n, "/", n_max)
+                for j in range(N):
+                    for z in t:
+                        print(z)
+                        z = int(z)
+                        if z%2 == 0 :
+                            print('TRUE')
+                            f_nj = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-((x[j] - a/2)**2) / (2 * sigma**2))
+                            
+                        else :
+                            f_nj = 0
+
+                        F[n, j] = f_nj
+                    
+            return F
+        
+
+        x, n_max, t, U, un = f(N)
+        c = (V * tau) / 2
+        d = (mu * tau) / 2
+
+        M = mat_M(N)
+        A = mat_A(N)
+        In = mat_I(N)
+
+        Fnj = mat_F1(N)
+        print(Fnj)
+        
+        for n in range(n_max):
+            un = np.linalg.solve((In + c * M - d * A), (In - c * M + d * A) @ (np.add(un,Fnj[0,:])))
+            U[n+1,:N] = un 
+            U[n+1,N] = U[n+1,0]
+
+        return x,t,U, Fnj
+    
+ 
+    T = 2
+    tau = 0.025
+
+    xCN,tCN,uCN, Fnj = SolutionCN_5(N)
+    
+
+
 
     #l= [0,0.5,1,1.5,2]
     l= [0,1,2,3,4,5,6,7,8,9,10]
@@ -229,8 +293,15 @@ def parti22():
     plt.title("Crank-Nicolson")
     plt.show()
 
+    return xCN,tCN,uCN, T, Fnj
+
 if __name__ == "__main__":
    
-   parti22()
+    #parti21()
+    P5 = parti22()
 
+    U = P5[-3]
 
+    tau = 0.025
+    for i in P5[1]:
+        print(max(U[int(i/tau),:]))
