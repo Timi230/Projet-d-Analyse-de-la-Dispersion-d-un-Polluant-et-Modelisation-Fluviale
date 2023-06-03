@@ -243,10 +243,8 @@ def parti22():
                 print(n, "/", n_max)
                 for j in range(N):
                     for z in t:
-                        print(z)
                         z = int(z)
                         if z%2 == 0 :
-                            print('TRUE')
                             f_nj = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-((x[j] - a/2)**2) / (2 * sigma**2))
                             
                         else :
@@ -276,10 +274,9 @@ def parti22():
         return x,t,U, Fnj
     
  
-    T = 2
-    tau = 0.025
+    
 
-    xCN,tCN,uCN, Fnj = SolutionCN_5(N)
+    xCN,tCN,uCN = SolutionCN_4(N)
     
 
 
@@ -293,15 +290,44 @@ def parti22():
     plt.title("Crank-Nicolson")
     plt.show()
 
-    return xCN,tCN,uCN, T, Fnj
+    #return xCN,tCN,uCN, T, Fnj
+
+
+def parti31():
+
+    def mat_M(N):
+        M = 4 * np.eye(N)
+        M += np.diagflat(-1*np.ones((N-1,1)),-1) + np.diagflat(-1*np.ones((N-1,1)),1) + np.diagflat(-1*np.ones((N-3,1)),-3) + np.diagflat(-1*np.ones((N-3,1)),3)
+        M = M*(1/(h**2))
+        return M
+
+    def mat_U(N) :
+        U = np.ones((N,N))
+        U[0, :] = 0
+        U[-1, :] = 0
+        U[:, 0] = 0
+        U[:, -1] = 0
+        U = np.concatenate(U)
+
+        return U.reshape((-1,1))
+    
+    def mat_F(N):
+        M = mat_M(N)
+        U = mat_U(N)
+        return np.dot(M,U)
+    
+    F = mat_F(N)
+
 
 if __name__ == "__main__":
    
+   parti22()
+   #parti21()
     #parti21()
-    P5 = parti22()
+    # P5 = parti22()
 
-    U = P5[-3]
+    # U = P5[-3]
 
-    tau = 0.025
-    for i in P5[1]:
-        print(max(U[int(i/tau),:]))
+    # tau = 0.025
+    # for i in P5[1]:
+    #     print(max(U[int(i/tau),:]))
