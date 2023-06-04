@@ -72,16 +72,15 @@ for n in range(n_max):
 
 l_representee = np.linspace(0,5,20)
 
-
 x = np.linspace(0,a,N+1)
 u_ref = 1/ (sigma * np.sqrt(2*np.pi)) * np.exp(-(x - a/2)**2 / (2*sigma**2))
 l_representee = np.linspace(0,5,100)
 errors = []
 
 for t in l_representee:
-    num = int(t/tau)
-    u = U[num,:]
-    error = np.linalg.norm(u - u_ref*t)
+    a = int(t/tau)
+    u = U[a,:]
+    error = np.linalg.norm(u_ref * t - u)
     errors.append(error)
 
 p = np.log(np.divide(errors[1:] , errors[:-1])) / np.log(np.divide(l_representee[1:] , l_representee[:-1]))
@@ -89,4 +88,3 @@ plt.plot(l_representee[1:],p)
 plt.xlabel("t")
 plt.ylabel("Vitesse de convergence")
 plt.show()
-
